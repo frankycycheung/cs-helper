@@ -36,7 +36,17 @@ const formData = ref({
   remarks: '',
 })
 
-const checklistData = ref({})
+const checklistData = ref({
+  checkSite: false,
+  checkIP: false,
+  checkEJ: false,
+  checkFlow: false,
+  checkMobile: false,
+  checkProgrammer: false,
+  checkQaRecord: false,
+  checkTickets: false,
+})
+
 const checklistRef = ref(null)
 const showWarning = ref(false)
 const uncheckedItems = ref([])

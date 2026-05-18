@@ -1,61 +1,98 @@
 <template>
   <div class="card h-100">
     <div class="card-header">
-      <h5 class="mb-0">1. Module & Content Configuration</h5>
+      <h5 class="mb-0">{{ $t('upgradeNews.configTitle') }}</h5>
     </div>
     <div class="card-body">
       <div class="mb-3">
-        <label class="form-label">Module</label>
+        <label class="form-label">{{ $t('upgradeNews.moduleLabel') }}</label>
         <select class="form-select" v-model="localModule">
-          <option value="">Select a module</option>
-          <option value="user-management">User Management</option>
-          <option value="payment">Payment</option>
-          <option value="reports">Reports</option>
-          <option value="settings">Settings</option>
+          <option value="">{{ $t('upgradeNews.modulePlaceholder') }}</option>
+          <option v-for="module in moduleLabel" :key="module.id" :value="module.id">
+            {{ module.label }}
+          </option>
         </select>
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Feature Title</label>
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Enter feature title"
-          v-model="localFeatureTitle"
-        />
+        <label class="form-label">{{ $t('upgradeNews.featureTitleLabel') }}</label>
+        <input type="text" class="form-control" placeholder="" v-model="localFeatureTitle" />
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Description</label>
+        <label class="form-label">{{ $t('upgradeNews.rawInputLabel') }}</label>
         <textarea
           class="form-control"
           rows="4"
-          placeholder="Enter raw description"
+          placeholder=""
           v-model="localDescription"
         ></textarea>
         <button class="btn btn-outline-primary btn-sm mt-2">
-          <i class="bi bi-magic"></i> AI Polish
+          <i class="bi bi-magic"></i>{{ $t('upgradeNews.btnAi') }}
         </button>
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Usage Path</label>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="web" v-model="localUsagePath.web" />
-          <label class="form-check-label" for="web">Web</label>
+        <label class="form-label fw-semibold">{{ $t('upgradeNews.pathWebLabel') }}</label>
+        <div class="btn-group btn-group-sm mb-3" role="group">
+          <button
+            type="button"
+            class="btn"
+            :class="pathInputMode === 'manual' ? 'btn-primary' : 'btn-outline-primary'"
+            @click="pathInputMode = 'manual'"
+          >
+            {{ $t('upgradeNews.pathModeManual') }}
+          </button>
+          <button
+            type="button"
+            class="btn"
+            :class="pathInputMode === 'smart' ? 'btn-primary' : 'btn-outline-primary'"
+            @click="pathInputMode = 'smart'"
+          >
+            {{ $t('upgradeNews.pathModeSmart') }}
+          </button>
         </div>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="app" v-model="localUsagePath.app" />
-          <label class="form-check-label" for="app">App</label>
-        </div>
+
+        <template v-if="pathInputMode === 'manual'">
+          <div class="input-group input-group-sm mb-2">
+            <span class="input-group-text">{{ $t('upgradeNews.webPathPrefix') }}</span>
+            <input
+              type="text"
+              class="form-control"
+              :placeholder="$t('upgradeNews.pathWebPlaceholder')"
+              v-model="manualWebPath"
+            />
+          </div>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">{{ $t('upgradeNews.appPathPrefix') }}</span>
+            <input
+              type="text"
+              class="form-control"
+              :placeholder="$t('upgradeNews.pathAppPlaceholder')"
+              v-model="manualAppPath"
+            />
+          </div>
+        </template>
+
+        <template v-else>
+          <textarea
+            class="form-control"
+            rows="4"
+            :placeholder="$t('upgradeNews.pathSmartPlaceholder')"
+            v-model="rawPathTextBlock"
+          ></textarea>
+          <button type="button" class="btn btn-primary btn-sm mt-2" @click="extractPathsFromBlock">
+            {{ $t('upgradeNews.btnExtractPaths') }}
+          </button>
+        </template>
       </div>
 
       <div class="mb-3">
-        <label class="form-label text-muted">Internal Remarks (Not included in preview)</label>
+        <label class="form-label text-muted">{{ $t('upgradeNews.remarksLabel') }}</label>
         <textarea
           class="form-control bg-light"
           rows="3"
-          placeholder="Internal notes..."
+          placeholder=""
           v-model="localRemarks"
         ></textarea>
       </div>
@@ -64,7 +101,30 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { locale } = useI18n()
+
+const eClassModules = [
+  { id: 'eNotice', zh: 'eNotice 電子通告系統', en: 'eNotice Electronic Notice' },
+  { id: 'eEnrolment', zh: 'eEnrolment 課外活動管理', en: 'eEnrolment Activities Management' },
+  { id: 'KPM', zh: 'KPM 學校表現評量', en: 'KPM Key Performance Measures' },
+  { id: 'iPortfolio', zh: 'iPortfolio 學生學習概覽', en: 'iPortfolio Student Profile' },
+  { id: 'eAttendance', zh: 'eAttendance 考勤系統', en: 'eAttendance Attendance System' },
+  { id: 'eSports', zh: 'eSports 運動會管理系統', en: 'eSports Sports Day Management' },
+  { id: 'eHomework', zh: 'eHomework 家課表', en: 'eHomework Homework Diary' },
+  { id: 'staffAttendance', zh: 'Staff Attendance 職員考勤', en: 'Staff Attendance System' },
+  { id: 'incentive', zh: 'Incentive Scheme 學生獎勵計劃', en: 'Incentive Scheme Reward Program' },
+  { id: 'groupMessage', zh: 'Group Message 小組訊息', en: 'Group Message System' },
+]
+
+const moduleLabel = computed(() => {
+  return eClassModules.map((m) => ({
+    id: m.id,
+    label: locale.value === 'en' ? m.en : m.zh,
+  }))
+})
 
 const props = defineProps({
   model: {
@@ -73,7 +133,7 @@ const props = defineProps({
       module: '',
       featureTitle: '',
       description: '',
-      usagePath: { web: false, app: false },
+      usagePath: { web: '', app: '' },
       remarks: '',
     }),
   },
@@ -84,16 +144,65 @@ const emit = defineEmits(['update:model'])
 const localModule = ref(props.model.module)
 const localFeatureTitle = ref(props.model.featureTitle)
 const localDescription = ref(props.model.description)
-const localUsagePath = ref({ ...props.model.usagePath })
+
+const pathInputMode = ref('manual')
+const manualWebPath = ref('')
+const manualAppPath = ref('')
+const rawPathTextBlock = ref('')
 const localRemarks = ref(props.model.remarks)
 
-watch([localModule, localFeatureTitle, localDescription, localUsagePath, localRemarks], () => {
+watch([localModule, localFeatureTitle, localDescription], () => {
   emit('update:model', {
     module: localModule.value,
     featureTitle: localFeatureTitle.value,
     description: localDescription.value,
-    usagePath: { ...localUsagePath.value },
+    usagePath: {
+      web: manualWebPath.value.trim(),
+      app: manualAppPath.value.trim(),
+    },
     remarks: localRemarks.value,
   })
 })
+
+watch([manualWebPath, manualAppPath], () => {
+  emit('update:model', {
+    module: localModule.value,
+    featureTitle: localFeatureTitle.value,
+    description: localDescription.value,
+    usagePath: {
+      web: manualWebPath.value.trim(),
+      app: manualAppPath.value.trim(),
+    },
+    remarks: localRemarks.value,
+  })
+})
+
+watch(localRemarks, () => {
+  emit('update:model', {
+    module: localModule.value,
+    featureTitle: localFeatureTitle.value,
+    description: localDescription.value,
+    usagePath: {
+      web: manualWebPath.value.trim(),
+      app: manualAppPath.value.trim(),
+    },
+    remarks: localRemarks.value,
+  })
+})
+
+const extractPathsFromBlock = () => {
+  const block = rawPathTextBlock.value || ''
+  const webMatch = block.match(
+    /(?:網頁版使用路徑[：:]\s*|Web[^\n]*?(?:使用路徑|Usage Path)[：:]\s*)([\s\S]*?)(?:\n|$)/i,
+  )
+  const appMatch = block.match(
+    /(?:App 使用路徑[：:]\s*|eClass[\s\w]*?Teacher\s*App[\s\w]*?(?:使用路徑|Usage Path)[：:]\s*|Teacher\s*App[^\n]*?(?:使用路徑|Usage Path)[：:]\s*|filter[：:]\s*)([\s\S]*?)(?:\n|$)/i,
+  )
+
+  manualWebPath.value = webMatch ? webMatch[1].trim() : ''
+  manualAppPath.value = appMatch ? appMatch[1].trim() : ''
+
+  rawPathTextBlock.value = ''
+  pathInputMode.value = 'manual'
+}
 </script>

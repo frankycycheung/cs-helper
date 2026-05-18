@@ -2,5 +2,47 @@
   "hello": "HAHA",
   "UpgradeNews": "Upgrade News",
   "home": "Home",
-  "toggle": "Toggle Sidebar"
+  "toggle": "Toggle Sidebar",
+  "upgradeNews": {
+    "title": "eClass Upgrade News Assistant",
+    "configTitle": "1. Module & Content Configuration",
+    "checklistTitle": "2. Pre-Publish Quality Checklist",
+    "previewTitle": "3. Upgrade News Live Preview",
+    "moduleLabel": "Select Module",
+    "modulePlaceholder": "Select a module",
+    "featureTitleLabel": "Feature Enhancement Title",
+    "rawInputLabel": "Raw Technical Description",
+    "pathWebLabel": "Web Usage Path",
+    "pathAppLabel": "App Usage Path",
+    "remarksLabel": "Internal Remarks Only (e.g., Case Ticket IDs)",
+    "btnAi": "AI Polish ✨",
+    "btnGenerate": "Generate / Copy News Content",
+    "warningModalTitle": "⚠️ Warning: Incomplete Checklist",
+    "modalCancel": "Go Back",
+    "modalProceed": "Proceed Anyway",
+    "webPathPrefix": "Web Usage Path: ",
+    "appPathPrefix": "eClass Teacher App Usage Path: ",
+    "pathModeManual": "Manual Entry",
+    "pathModeSmart": "Smart Extract",
+    "pathWebPlaceholder": "e.g., Student Management > Announcement System",
+    "pathAppPlaceholder": "e.g., Student Announcement > top-right filter",
+    "pathSmartPlaceholder": "Paste standard path block here. e.g.,\nWeb Usage Path: Student Management > Announcement System\neClass Teacher App Usage Path: Student Announcement > top-right filter",
+    "btnExtractPaths": "Extract Paths",
+    "warningModalBody": "Please review the following unchecked items:",
+    "categories": {
+      "env": "Environment & Scope",
+      "flow": "Function & Flow Testing",
+      "records": "Records Alignment"
+    },
+    "items": {
+      "checkSite": "Correct deployment site verified?",
+      "checkIP": "Deployed to Secondary School System (IP)?",
+      "checkEJ": "Primary School System (EJ) deployment status checked?",
+      "checkFlow": "Web/Computer flow tested and fully functional?",
+      "checkMobile": "Mobile App flow tested and functional?",
+      "checkProgrammer": "If function failed, fixed by Programmer already?",
+      "checkQaRecord": "Cross-checked with QA Record?",
+      "checkTickets": "Client suggestions and Case Tickets solved?"
+    }
+  }
 }

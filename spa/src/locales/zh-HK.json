@@ -2,5 +2,47 @@
   "hello": "HEHE",
   "UpgradeNews": "升級快訊",
   "home": "首頁",
-  "toggle": "切換側邊欄"
+  "toggle": "切換側邊欄",
+  "upgradeNews": {
+    "title": "eClass 系統更新公告小助手",
+    "configTitle": "1. 模組內容配置",
+    "checklistTitle": "2. 發布前品質自檢清單",
+    "previewTitle": "3. 升級公告即時預覽",
+    "moduleLabel": "選擇模組",
+    "modulePlaceholder": "請選擇模組",
+    "featureTitleLabel": "功能優化標題",
+    "rawInputLabel": "原始技術描述",
+    "pathWebLabel": "網頁版使用路徑",
+    "pathAppLabel": "App 版使用路徑",
+    "remarksLabel": "內部備註（不對外公開，如 Case ID）",
+    "btnAi": "AI 潤飾 ✨",
+    "btnGenerate": "生成 / 複製公告內容",
+    "warningModalTitle": "⚠️ 發布前溫馨提示（未勾選清單）",
+    "modalCancel": "返回檢查",
+    "modalProceed": "確認並強制生成",
+    "webPathPrefix": "網頁版使用路徑：",
+    "appPathPrefix": "eClass Teacher App 使用路徑：",
+    "pathModeManual": "手動填寫",
+    "pathModeSmart": "智能拆分",
+    "pathWebPlaceholder": "例如：學生管理 > 電子通告系統",
+    "pathAppPlaceholder": "例如：學生通告 > 右上角 filter",
+    "pathSmartPlaceholder": "請在此貼上標準路徑區塊，例如：\n網頁版使用路徑：學生管理 > 電子通告系統\neClass Teacher App 使用路徑：學生通告 > 右上角 filter",
+    "btnExtractPaths": "解析路徑",
+    "warningModalBody": "請檢查以下未勾選的項目：",
+    "categories": {
+      "env": "環境與部署範圍確認",
+      "flow": "功能與流程測試",
+      "records": "紀錄與工單對齊"
+    },
+    "items": {
+      "checkSite": "測試與發布網址/環境正確？",
+      "checkIP": "中學系統 (IP) 是否已部署？",
+      "checkEJ": "已確認小學系統 (EJ) 部署狀態？ (避免誤發)",
+      "checkFlow": "網頁端功能測試正常、流程正確？",
+      "checkMobile": "手機 App 端 (Teacher App) 測試正常？",
+      "checkProgrammer": "若先前功能有異狀，工程師是否已修正完畢？",
+      "checkQaRecord": "已核對並確認 QA 測試紀錄？",
+      "checkTickets": "已確認解決相關的客戶建議與歷史工單？"
+    }
+  }
 }

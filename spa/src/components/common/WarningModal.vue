@@ -9,12 +9,16 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title text-warning">
-            <i class="bi bi-exclamation-triangle me-2"></i>Incomplete Checklist
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ t('upgradeNews.warningModalTitle') }}
           </h5>
           <button type="button" class="btn-close" @click="$emit('close')"></button>
         </div>
         <div class="modal-body">
-          <p class="mb-3">Please review the following unchecked items:</p>
+          <p class="mb-3">
+            {{
+              t('upgradeNews.warningModalBody') || 'Please review the following unchecked items:'
+            }}
+          </p>
           <ul class="list-group list-group-flush">
             <li v-for="item in uncheckedItems" :key="item" class="list-group-item text-danger">
               <i class="bi bi-x-circle me-2"></i>{{ item }}
@@ -22,9 +26,11 @@
           </ul>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="$emit('close')">Go Back</button>
+          <button type="button" class="btn btn-secondary" @click="$emit('close')">
+            {{ t('upgradeNews.modalCancel') || 'Go Back' }}
+          </button>
           <button type="button" class="btn btn-warning" @click="$emit('proceed')">
-            Proceed Anyway
+            {{ t('upgradeNews.modalProceed') || 'Proceed Anyway' }}
           </button>
         </div>
       </div>
