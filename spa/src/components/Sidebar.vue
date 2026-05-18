@@ -57,11 +57,44 @@
       </svg>
       <span v-if="isOpen" class="link-text">{{ $t('UpgradeNews') }}</span>
     </router-link>
+    <div class="locale-switcher" :class="{ collapsed: !isOpen }">
+      <button
+        v-for="lang in locales"
+        :key="lang.value"
+        :class="{ active: currentLocale === lang.value }"
+        @click="setLocale(lang.value)"
+        class="btn btn-pill btn-outline-secondary btn-sm me-1"
+      >
+        <span v-if="isOpen">{{ lang.label }}</span>
+        <span v-else>{{ lang.label.charAt(0) }}</span>
+      </button>
+    </div>
   </nav>
 </template>
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { locale } = useI18n()
+const currentLocale = ref(locale.value)
+
+watch(
+  () => locale.value,
+  (newVal) => {
+    currentLocale.value = newVal
+  },
+)
+
+const locales = [
+  { value: 'en', label: 'EN' },
+  { value: 'zh-HK', label: '中文' },
+]
+
+const setLocale = (lang) => {
+  locale.value = lang
+  currentLocale.value = lang
+}
 
 const isOpen = ref(true)
 
@@ -83,9 +116,9 @@ watch(isOpen, updateSidebarWidth)
   left: 0;
   width: 200px;
   height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #fff0f5;
   padding: 20px 10px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0 10px rgba(223, 190, 200, 0.15);
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -118,7 +151,7 @@ watch(isOpen, updateSidebarWidth)
   cursor: pointer;
   font-size: 14px;
   color: #333;
-  border-radius: 4px;
+  border-radius: 12px;
   transition: all 0.3s ease;
   width: 100%;
 }
@@ -129,7 +162,7 @@ watch(isOpen, updateSidebarWidth)
 }
 
 .toggle-btn:hover {
-  background-color: #e9ecef;
+  background-color: rgba(255, 182, 193, 0.2);
 }
 
 .btn-text {
@@ -144,19 +177,19 @@ watch(isOpen, updateSidebarWidth)
   text-decoration: none;
   color: #333;
   padding: 10px;
-  border-radius: 4px;
+  border-radius: 12px;
   font-weight: 500;
   transition: all 0.3s ease;
   width: 100%;
 }
 
 .sidebar-link:hover {
-  background-color: #e9ecef;
-  color: #007bff;
+  background-color: rgba(255, 182, 193, 0.2);
+  color: #ff9999;
 }
 
 .sidebar-link.active {
-  background-color: #007bff;
+  background-color: #ff9999;
   color: white;
 }
 
@@ -168,5 +201,22 @@ watch(isOpen, updateSidebarWidth)
 
 .link-text {
   white-space: nowrap;
+}
+
+.locale-switcher {
+  margin-top: auto;
+  padding-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.sidebar.collapsed .locale-switcher {
+  justify-content: center;
+}
+
+.locale-switcher .btn {
+  padding: 4px 8px;
+  font-size: 12px;
 }
 </style>

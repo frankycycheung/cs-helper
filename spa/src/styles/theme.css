@@ -1,0 +1,110 @@
+/* Cozy Pastel Theme Styles */
+
+:root {
+  --bs-primary: #ff9999;
+}
+
+/* Page Background */
+body {
+  background-color: #fffdf9;
+}
+
+.bg-custom-cream {
+  background-color: #fffdf9;
+}
+
+.bg-custom-pink {
+  background-color: #ff9999;
+}
+
+/* Badge */
+.badge.bg-primary {
+  background-color: #ff9999 !important;
+}
+
+/* Bootstrap btn-primary override */
+.btn-primary {
+  background-color: #ff9999 !important;
+  border-color: #ff9999 !important;
+}
+
+.btn-primary:hover {
+  background-color: #ff69b4 !important;
+  border-color: #ff69b4 !important;
+}
+
+.btn-outline-primary {
+  border-color: #ff9999 !important;
+  color: #ff9999 !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: #ff9999 !important;
+  border-color: #ff9999 !important;
+  color: #fff !important;
+}
+
+/* Card Elements */
+.card {
+  border: none !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(223, 190, 200, 0.15) !important;
+  background-color: #ffffff;
+}
+
+/* Button Elements */
+.btn-pill {
+  border-radius: 50px !important;
+  transition: all 0.3s ease;
+}
+
+.btn-pill:hover {
+  transform: scale(1.03);
+  box-shadow: 0 5px 15px rgba(255, 182, 193, 0.4);
+}
+
+/* Form Inputs */
+.form-control,
+.form-select {
+  border-radius: 12px !important;
+  border: 1.5px solid #f3e5f5;
+  background-color: #fffdf9;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #ffb6c1;
+  box-shadow: 0 0 0 0.25rem rgba(255, 182, 193, 0.25);
+}
+
+/* Custom Primary Button */
+.btn-custom-primary {
+  background-color: #ff9999;
+  border-color: #ff9999;
+  color: #fff;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+
+.btn-custom-primary:hover {
+  background-color: #ff69b4;
+  border-color: #ff69b4;
+  transform: scale(1.03);
+  box-shadow: 0 5px 15px rgba(255, 153, 153, 0.4);
+}
+
+/* Outline Button */
+.btn-outline-custom-pink {
+  border: 2px solid #ff9999;
+  color: #ff9999;
+  background-color: transparent;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-custom-pink:hover {
+  border-color: #ff69b4;
+  color: #ff69b4;
+  background-color: rgba(255, 153, 153, 0.1);
+  transform: scale(1.03);
+}

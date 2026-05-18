@@ -3,6 +3,48 @@
   "UpgradeNews": "升級快訊",
   "home": "首頁",
   "toggle": "切換側邊欄",
+  "homePage": {
+    "badge": "💝 專屬於妳的元氣工作台 v1.0",
+    "heroTitle": "今天工作辛苦啦！我的專屬 CS 超人 🦸‍♀️",
+    "heroSubtitle": "知道妳每天面對客戶、對路徑、寫公告很累，所以特地為妳寫了這個小工具。願它能幫妳排憂解難，把煩人的瑣事都趕走，早點下班陪我！✨",
+    "heroCta": "🚀 開啟・升級公告產生器",
+    "valuesTitle": "✨ 這裡能幫上什麼忙？",
+    "values": {
+      "aiPolish": {
+        "title": "🔮 魔法白話文翻譯",
+        "desc": "把工程師那些難懂的火星文，一鍵變成溫柔、客氣又好懂的官方公告，不用再自己抓頭苦思文案啦！"
+      },
+      "riskFree": {
+        "title": "🛡️ 貼心防呆自檢表",
+        "desc": "幫妳把中學 (IP) 還是小學 (EJ) 有沒有部署、測試環境對不對都列好了，再也不用擔心忙中出錯被碎念！"
+      },
+      "smartExtract": {
+        "title": "🤖 智能路徑小幫手",
+        "desc": "複製整塊雜亂的路徑貼進來，系統自動幫妳拆好網頁版和 App 版，連最繁瑣的標題都自動幫妳加好！"
+      }
+    },
+    "featuresTitle": "探索工作台功能",
+    "featuresMainTitle": "升級公告生成器",
+    "featuresMainDesc": "涵蓋 10 大核心 eClass 模組的雙語結構化公告生成工具，自動格式化輸出、附加提示標籤，並支援一鍵複製到剪貼簿。",
+    "featuresTags": {
+      "bilingual": "雙語支持（中 / 英）",
+      "modules": "10 個核心模組",
+      "structured": "結構化輸出",
+      "warnings": "提示標籤"
+    },
+    "getStarted": "立即開始",
+    "comingSoon": "🔒 祕密開發中...",
+    "comingSoonTitle": "AI 客服安撫話術自動生成功能正在加載中...",
+    "comingSoonText": "（其實是男友正在努力通宵敲代碼中 🧑‍💻）",
+    "card1Title": "🔮 魔法白話文翻譯",
+    "card1Text": "把工程師那些難懂的火星文，一鍵變成溫柔、客氣又好懂的官方公告，不用再自己抓頭苦思文案啦！",
+    "card2Title": "🛡️ 貼心防呆自檢表",
+    "card2Text": "幫妳把中學 (IP) 還是小學 (EJ) 有沒有部署、測試環境對不對都列好了，再也不用擔心忙中出錯被碎念！",
+    "card3Title": "🤖 智能路徑小幫手",
+    "card3Text": "複製整塊雜亂的路徑貼進來，系統自動幫妳拆好網頁版和 App 版，連最繁瑣的標題都自動幫妳加好！",
+    "sectionTitle": "✨ 這裡能幫上什麼忙？",
+    "ctaBtn": "🚀 開啟・升級公告產生器"
+  },
   "upgradeNews": {
     "title": "eClass 系統更新公告小助手",
     "configTitle": "1. 模組內容配置",

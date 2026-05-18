@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid py-4">
+  <div class="container-fluid py-4 bg-custom-cream">
     <div class="row g-4">
       <div class="col-lg-4 col-md-12">
         <InputConfigPanel v-model:model="formData" />
@@ -66,3 +66,10 @@ const proceedAnyway = () => {
   alert('News generated anyway!')
 }
 </script>
+
+<style scoped>
+.g-4 {
+  --bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 1.5rem;
+}
+</style>

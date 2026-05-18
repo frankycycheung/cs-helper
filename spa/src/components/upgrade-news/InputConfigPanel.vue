@@ -6,7 +6,7 @@
     <div class="card-body">
       <div class="mb-3">
         <label class="form-label">{{ $t('upgradeNews.moduleLabel') }}</label>
-        <select class="form-select" v-model="localModule">
+        <select class="form-select form-control-pill" v-model="localModule">
           <option value="">{{ $t('upgradeNews.modulePlaceholder') }}</option>
           <option v-for="module in moduleLabel" :key="module.id" :value="module.id">
             {{ module.label }}
@@ -27,7 +27,7 @@
           placeholder=""
           v-model="localDescription"
         ></textarea>
-        <button class="btn btn-outline-primary btn-sm mt-2">
+        <button class="btn btn-pill btn-primary btn-sm mt-2">
           <i class="bi bi-magic"></i>{{ $t('upgradeNews.btnAi') }}
         </button>
       </div>
@@ -37,7 +37,7 @@
         <div class="btn-group btn-group-sm mb-3" role="group">
           <button
             type="button"
-            class="btn"
+            class="btn btn-pill"
             :class="pathInputMode === 'manual' ? 'btn-primary' : 'btn-outline-primary'"
             @click="pathInputMode = 'manual'"
           >
@@ -45,7 +45,7 @@
           </button>
           <button
             type="button"
-            class="btn"
+            class="btn btn-pill"
             :class="pathInputMode === 'smart' ? 'btn-primary' : 'btn-outline-primary'"
             @click="pathInputMode = 'smart'"
           >
@@ -81,7 +81,11 @@
             :placeholder="$t('upgradeNews.pathSmartPlaceholder')"
             v-model="rawPathTextBlock"
           ></textarea>
-          <button type="button" class="btn btn-primary btn-sm mt-2" @click="extractPathsFromBlock">
+          <button
+            type="button"
+            class="btn btn-pill btn-primary btn-sm mt-2"
+            @click="extractPathsFromBlock"
+          >
             {{ $t('upgradeNews.btnExtractPaths') }}
           </button>
         </template>
@@ -206,3 +210,17 @@ const extractPathsFromBlock = () => {
   pathInputMode.value = 'manual'
 }
 </script>
+
+<style scoped>
+.form-control-pill {
+  border-radius: 50px !important;
+}
+
+.input-group-text {
+  border-radius: 12px 0 0 12px !important;
+}
+
+.card-body textarea.form-control {
+  resize: vertical;
+}
+</style>

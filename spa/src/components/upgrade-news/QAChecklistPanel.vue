@@ -91,3 +91,11 @@ defineExpose({
     allItems.value.filter((item) => !localChecklist.value[item.id]).map((item) => item.label),
 })
 </script>
+
+<style scoped>
+.list-group-item {
+  border-radius: 12px !important;
+  margin-bottom: 4px;
+  border: 1px solid #f3e5f5;
+}
+</style>

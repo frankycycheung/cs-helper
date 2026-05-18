@@ -3,6 +3,48 @@
   "UpgradeNews": "Upgrade News",
   "home": "Home",
   "toggle": "Toggle Sidebar",
+  "homePage": {
+    "badge": "💝 Your Cozy Workspace v1.0",
+    "heroTitle": "Thank you for your hard work today, my CS Superhero! 🦸‍♀️",
+    "heroSubtitle": "I know handling tickets and upgrade paths every day is exhausting, so I built this little helper just for you. Hope it chases away the boring tasks so you can finish work earlier and spend time with me! ✨",
+    "heroCta": "🚀 Launch Upgrade News Generator",
+    "valuesTitle": "✨ How I Can Help You Today",
+    "values": {
+      "aiPolish": {
+        "title": "🔮 Magic Translator",
+        "desc": "Turn confusing developer logs into polite, clear public announcements with just one click. No more scratching your head over copywriting!"
+      },
+      "riskFree": {
+        "title": "🛡️ Guardian Checklist",
+        "desc": "I've listed all the environment checks (IP vs. EJ) for you. Never worry about deployment misfires or tiny mistakes again!"
+      },
+      "smartExtract": {
+        "title": "🤖 Smart Path Splitter",
+        "desc": "Just paste the messy raw path block, and I will automatically organize it into clean Web and App fields with perfect prefixes!"
+      }
+    },
+    "featuresTitle": "Explore Our Features",
+    "featuresMainTitle": "Upgrade News Generator",
+    "featuresMainDesc": "Bilingual, structured release-note generator covering 10 core eClass modules. Auto-formats content, applies warning tags, and lets you copy to clipboard in one click.",
+    "featuresTags": {
+      "bilingual": "Bilingual (EN / ZH)",
+      "modules": "10 Core Modules",
+      "structured": "Structured Output",
+      "warnings": "Warning Notifications"
+    },
+    "getStarted": "Get Started",
+    "comingSoon": "🔒 Secret Feature Loading...",
+    "comingSoonTitle": "AI Automated Canned Responses is coming soon...",
+    "comingSoonText": "(In fact, your boyfriend is working hard coding this overnight 🧑‍💻)",
+    "card1Title": "🔮 Magic Translator",
+    "card1Text": "Turn confusing developer logs into polite, clear public announcements with just one click. No more scratching your head over copywriting!",
+    "card2Title": "🛡️ Guardian Checklist",
+    "card2Text": "I've listed all the environment checks (IP vs. EJ) for you. Never worry about deployment misfires or tiny mistakes again!",
+    "card3Title": "🤖 Smart Path Splitter",
+    "card3Text": "Just paste the messy raw path block, and I will automatically organize it into clean Web and App fields with perfect prefixes!",
+    "sectionTitle": "✨ How I Can Help You Today",
+    "ctaBtn": "🚀 Launch Upgrade News Generator"
+  },
   "upgradeNews": {
     "title": "eClass Upgrade News Assistant",
     "configTitle": "1. Module & Content Configuration",

@@ -22,7 +22,7 @@
           </div>
         </div>
       </div>
-      <button class="btn btn-primary w-100" @click="generateNews">
+      <button class="btn btn-pill btn-primary w-100" @click="generateNews">
         <i class="bi bi-copy me-2"></i>{{ $t('upgradeNews.btnGenerate') }}
       </button>
     </div>
@@ -74,6 +74,8 @@ const generateNews = () => {
 <style scoped>
 .preview-content {
   min-height: 120px;
+  background-color: #fffafa;
+  border-radius: 16px;
 }
 .usage-path-text {
   margin-inline-start: 0.5rem;
