@@ -21,15 +21,20 @@
 
       <div class="mb-3">
         <label class="form-label">{{ $t('upgradeNews.rawInputLabel') }}</label>
-<textarea
-           class="form-control"
-           rows="4"
-           placeholder=""
-           v-model="localDescription"
-         ></textarea>
-         <button class="btn btn-pill btn-primary btn-sm mt-2" @click="polishWithAI" :disabled="isPolishing">
-           <i class="bi bi-magic"></i>{{ isPolishing ? $t('upgradeNews.btnAiLoading') : $t('upgradeNews.btnAi') }}
-         </button>
+        <textarea
+          class="form-control"
+          rows="4"
+          placeholder=""
+          v-model="localDescription"
+        ></textarea>
+        <button
+          class="btn btn-pill btn-primary btn-sm mt-2"
+          @click="polishWithAI"
+          :disabled="isPolishing"
+        >
+          <i class="bi bi-magic"></i
+          >{{ isPolishing ? $t('upgradeNews.btnAiLoading') : $t('upgradeNews.btnAi') }}
+        </button>
       </div>
 
       <div class="mb-3">
@@ -166,8 +171,8 @@ const polishWithAI = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         description: localDescription.value,
-        module: localModule.value
-      })
+        module: localModule.value,
+      }),
     })
     const data = await response.json()
     if (data.status === 'success') {

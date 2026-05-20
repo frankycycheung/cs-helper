@@ -3,10 +3,14 @@
   "UpgradeNews": "Upgrade News",
   "home": "Home",
   "toggle": "Toggle Sidebar",
+  "emoji": {
+    "addPlaceholder": "Type an emoji…",
+    "addButton": "Add"
+  },
   "homePage": {
     "badge": "💝 Your Cozy Workspace v1.0",
     "heroTitle": "Thank you for your hard work today, my CS Superhero! 🦸‍♀️",
-    "heroSubtitle": "I know handling tickets and upgrade paths every day is exhausting, so I built this little helper just for you. Hope it chases away the boring tasks so you can finish work earlier and spend time with me! ✨",
+    "heroSubtitle": "I know handling tickets and upgrade news every day is exhausting, so I built this little helper just for you. Hope it chases away the boring tasks so you can finish work earlier and take more rest! ✨",
     "heroCta": "🚀 Launch Upgrade News Generator",
     "valuesTitle": "✨ How I Can Help You Today",
     "values": {
