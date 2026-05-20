@@ -58,6 +58,7 @@
     "pathAppLabel": "App 版使用路徑",
     "remarksLabel": "內部備註（不對外公開，如 Case ID）",
     "btnAi": "AI 潤飾 ✨",
+    "btnAiLoading": "潤飾中...",
     "btnGenerate": "生成 / 複製公告內容",
     "warningModalTitle": "⚠️ 發布前溫馨提示（未勾選清單）",
     "modalCancel": "返回檢查",

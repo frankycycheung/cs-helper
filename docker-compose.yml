@@ -1,0 +1,44 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: cs-helper-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  flask:
+    build: .
+    container_name: cs-helper-flask
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./app:/app/app:rw
+    environment:
+      - FLASK_DEBUG=1
+      - OLLAMA_HOST=http://ollama:11434
+    command: flask run --host=0.0.0.0 --port=5000 --reload
+    networks:
+      - app-network
+    depends_on:
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/data"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+volumes:
+  ollama-data:
+
+networks:
+  app-network:
+    driver: bridge

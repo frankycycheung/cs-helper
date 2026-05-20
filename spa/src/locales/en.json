@@ -58,6 +58,7 @@
     "pathAppLabel": "App Usage Path",
     "remarksLabel": "Internal Remarks Only (e.g., Case Ticket IDs)",
     "btnAi": "AI Polish ✨",
+    "btnAiLoading": "Polishing...",
     "btnGenerate": "Generate / Copy News Content",
     "warningModalTitle": "⚠️ Warning: Incomplete Checklist",
     "modalCancel": "Go Back",

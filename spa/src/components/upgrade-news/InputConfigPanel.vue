@@ -21,15 +21,15 @@
 
       <div class="mb-3">
         <label class="form-label">{{ $t('upgradeNews.rawInputLabel') }}</label>
-        <textarea
-          class="form-control"
-          rows="4"
-          placeholder=""
-          v-model="localDescription"
-        ></textarea>
-        <button class="btn btn-pill btn-primary btn-sm mt-2">
-          <i class="bi bi-magic"></i>{{ $t('upgradeNews.btnAi') }}
-        </button>
+<textarea
+           class="form-control"
+           rows="4"
+           placeholder=""
+           v-model="localDescription"
+         ></textarea>
+         <button class="btn btn-pill btn-primary btn-sm mt-2" @click="polishWithAI" :disabled="isPolishing">
+           <i class="bi bi-magic"></i>{{ isPolishing ? $t('upgradeNews.btnAiLoading') : $t('upgradeNews.btnAi') }}
+         </button>
       </div>
 
       <div class="mb-3">
@@ -154,6 +154,33 @@ const manualWebPath = ref('')
 const manualAppPath = ref('')
 const rawPathTextBlock = ref('')
 const localRemarks = ref(props.model.remarks)
+const isPolishing = ref(false)
+
+const polishWithAI = async () => {
+  if (!localDescription.value.trim()) return
+
+  isPolishing.value = true
+  try {
+    const response = await fetch('/api/upgrade_news/polish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        description: localDescription.value,
+        module: localModule.value
+      })
+    })
+    const data = await response.json()
+    if (data.status === 'success') {
+      localDescription.value = data.reply
+    } else {
+      alert(data.message || 'AI polish failed')
+    }
+  } catch (error) {
+    alert('Failed to connect to AI service')
+  } finally {
+    isPolishing.value = false
+  }
+}
 
 watch([localModule, localFeatureTitle, localDescription], () => {
   emit('update:model', {
