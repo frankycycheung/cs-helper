@@ -3,10 +3,14 @@
   "UpgradeNews": "升級快訊",
   "home": "首頁",
   "toggle": "切換側邊欄",
+  "emoji": {
+    "addPlaceholder": "輸入 Emoji…",
+    "addButton": "加入"
+  },
   "homePage": {
     "badge": "💝 專屬於妳的元氣工作台 v1.0",
-    "heroTitle": "今日工作辛苦啦！我係妳嘅專屬小開發小幫手啦 💖",
-    "heroSubtitle": "知道妳每天應對客戶、處理路徑、寫升快好辛苦㗎啦！所以特意為妳做咗呢個小工具。希望呢個工具可以幫妳減壓解難，擦走啲煩瑣嘅小事，早啲放工陪我啦～✨",
+    "heroTitle": "BB今日工作辛苦啦！我係妳嘅專屬小開發小幫手啦 💖",
+    "heroSubtitle": "知道妳每天應對客戶、處理Case、寫升快好辛苦㗎啦！所以特意為妳做咗呢個小工具。希望呢個工具可以幫妳減壓解難，擦走啲煩瑣嘅小事，早啲放工休息啦～✨",
     "heroCta": "🚀 開啟・升級公告產生器",
     "valuesTitle": "✨ 這裡能幫上什麼忙？",
     "values": {
@@ -58,6 +62,8 @@
     "pathAppLabel": "App 版使用路徑",
     "remarksLabel": "內部備註（不對外公開，如 Case ID）",
     "btnAi": "AI 潤飾 ✨",
+    "btnAiLoading": "潤飾中...",
+    "btnUndo": "還原",
     "btnGenerate": "生成 / 複製公告內容",
     "warningModalTitle": "⚠️ 發布前溫馨提示（未勾選清單）",
     "modalCancel": "返回檢查",
