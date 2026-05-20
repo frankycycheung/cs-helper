@@ -17,10 +17,19 @@ def polish_description():
         if not raw_description or not raw_description.strip():
             return jsonify({"status": "error", "message": "description is required"}), 400
 
-        prompt = f"""Convert the following technical description into a clear, professional announcement for end users. Remove technical jargon and make it concise and user-friendly. The output must follow the same language of the raw description:
+        system_prompt = """You are a helpful assistant that converts technical descriptions into user-friendly announcements.
+
+CRITICAL INSTRUCTION: Match the output language to the input language. If input is Traditional Chinese, output Traditional Chinese. If input is English, output English."""
+
+        user_prompt = f"""Convert this technical description into a clear, professional announcement for end users. Remove technical jargon and make it concise and user-friendly:
 
 {raw_description}"""
-        result = chat_service.process_message('upgrade_news_polish', prompt)
+        
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        result = chat_service.process_with_messages('upgrade_news_polish', messages)
         return jsonify(result), 200
 
     except Exception as e:
