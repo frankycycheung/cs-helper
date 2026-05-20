@@ -9,6 +9,7 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
+  base: '/cs-helper/',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

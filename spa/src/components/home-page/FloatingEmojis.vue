@@ -6,12 +6,10 @@
     @mouseleave="onMouseLeave"
     @mouseenter="onMouseEnter"
   >
-    <!-- floating emojis -->
     <span v-for="emoji in emojis" :key="emoji.id" class="floating-emoji" :style="emoji.style">{{
       emoji.char
     }}</span>
 
-    <!-- add bar -->
     <div class="emoji-add-bar">
       <input
         ref="inputRef"
@@ -52,11 +50,11 @@ const newEmojiText = ref('')
 const areaW = ref(400)
 const areaH = ref(200)
 
-const mouse = reactive({
-  x: -9999,
-  y: -9999,
-  active: false,
-})
+// current mouse position (container-coords, −9999 when outside)
+const mouse = reactive({ x: -9999, y: -9999, active: false })
+
+// previous mouse position used to derive velocity each frame
+const prevMouse = reactive({ x: -9999, y: -9999 })
 
 const emojis = reactive([])
 
@@ -70,210 +68,172 @@ const ANCHOR_PCTS = [
 
 let emojiIdCounter = 0
 
-// ── physics constants ────────────────────────────────────────────────────
-const DAMPING = 0.88 // velocity decay per frame
-const SPRING_K = 2.8 // fraction-of-container spring pull (1/s)
-const DRIFT_AMP_PX = 9 // natural Lissajous wander amplitude (px)
-const SPEED_CAP = 110 // max px/s
-const REPEL_STR = 30 // base repel scale
-const EMOJI_R = 22 // assumed collision radius (px) ≈ 44 px width
-const PAD = 28 // min px distance from wall edge
-// ───────────────────────────────────────────────────────────────────────────
+// ── physics constants ────────────────────────────────────────────────────────
+const FRICTION = 0.995 // gentle per-frame velocity decay (coasting)
+const SPRING_K = 1.5 // anchor pull strength (px/s²) per px displacement
+const DRIFT_AMP = 22 // px peak-to-peak idle wander
+const SPEED_CAP = 200 // px/s kinetic cap when mouse is active
+const REPEL_R = 260 // px — max repel interaction range
+const REPEL_STR = 120 // base force scale
+const IDLE_SPD = 40 // px/s — relaxed drift when mouse is absent
+const EMOJI_R = 22 // px — half the emoji collider radius
+const PAD = 28 // px — min clamp distance from wall edge
+// ────────────────────────────────────────────────────────────────────────────
 
 function dist(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y)
 }
 
-function normalize(vx, vy) {
-  const d = Math.hypot(vx, vy) || 1
-  return [vx / d, vy / d]
+function clamp(v, lo, hi) {
+  return Math.max(lo, Math.min(hi, v))
 }
+
+// ── anchor / init ────────────────────────────────────────────────────────────
 
 function initEmojis() {
   emojis.length = 0
-  ANCHOR_PCTS.forEach((p, i) => {
+  ANCHOR_PCTS.forEach((p) => {
     const seed = Math.random() * Math.PI * 2
+    const ax = (p.px / 100) * areaW.value
+    const ay = (p.py / 100) * areaH.value
     emojis.push({
       id: emojiIdCounter++,
-      char: props.modelValue[i],
-      anchorX: (p.px / 100) * areaW.value,
-      anchorY: (p.py / 100) * areaH.value,
-      x: (p.px / 100) * areaW.value,
-      y: (p.py / 100) * areaH.value,
-      vx: (Math.random() - 0.5) * 18,
-      vy: (Math.random() - 0.5) * 18,
-      driftPhase: Math.random() * Math.PI * 2,
-      driftAmp: DRIFT_AMP_PX,
+      char: props.modelValue[emojis.length],
+      anchorX: ax,
+      anchorY: ay,
+      x: ax,
+      y: ay,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6,
+      phase: Math.random() * Math.PI * 2,
       seed,
-      style: { left: '0px', top: '0px' },
+      style: { transform: `translate3d(${ax}px, ${ay}px, 0)` },
     })
   })
 }
 
-/**
- * Random candidate positions within a dense circular disk.
- * Returns a candidate {x,y} that is at least 2*EMOJI_R away from every
- * existing emoji in `emojis`. Returns null if none found after `n` tries.
- */
-function scanDisk(emojis, w, h, n = 180) {
-  const cx = w / 2
-  const cy = h / 2
-  const rx = w / 2 - PAD // inner-circle half-width
-  const ry = h / 2 - PAD
-
-  if (rx < EMOJI_R || ry < EMOJI_R) return null
-
-  for (let i = 0; i < n; i++) {
-    // rej-fraction sampling → uniform disk by rejection
-    let px, py
-    for (let retry = 0; retry < 12; retry++) {
-      px = cx + (Math.random() * 2 - 1) * rx
-      py = cy + (Math.random() * 2 - 1) * ry
-      if (((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2 <= 1) break
-    }
-    if (emojis.every((e) => dist(e, { x: px, y: py }) >= EMOJI_R * 2)) return { x: px, y: py }
-  }
-  return null
-}
-
-/**
- * Expand candidate list by a low-res grid in expanded bounds.
- */
-function scanGrid(emojis, w, h) {
-  const P = EMOJI_R + 2
-  const xMin = P,
-    xMax = w - P
-  const yMin = P,
-    yMax = h - P
-  if (xMin >= xMax || yMin >= yMax) return null
-
-  const best = { x: 0, y: 0, minGap: -Infinity }
-
-  for (let x = xMin; x <= xMax; x += (xMax - xMin) / 8) {
-    for (let y = yMin; y <= yMax; y += (yMax - yMin) / 8) {
-      const minGap = Math.min(...emojis.map((e) => dist(e, { x, y }) - EMOJI_R * 2))
-      if (minGap > best.minGap) {
-        best.x = x
-        best.y = y
-        best.minGap = minGap
-      }
-    }
-  }
-  return best.minGap >= 0 ? { x: best.x, y: best.y } : null
-}
-
-function findFreeSpot(emojis, w, h) {
-  let spot = scanDisk(emojis, w, h)
-  if (spot != null) return spot
-
-  spot = scanGrid(emojis, w, h)
-  if (spot != null) return spot
-
-  // last resort: push toward nearest free diagonal from centre
-  const cx = w / 2,
-    cy = h / 2
-  return {
-    x: Math.min(w - PAD, Math.max(PAD, cx + (Math.random() - 0.5) * w * 0.3)),
-    y: Math.min(h - PAD, Math.max(PAD, cy + (Math.random() - 0.5) * h * 0.3)),
-  }
-}
+// ── drift ─────────────────────────────────────────────────────────────────────
 
 function applyDrift(e, dt) {
-  e.driftPhase += dt * 0.65
-  const d =
-    Math.sin(e.driftPhase + e.seed) * Math.cos(e.driftPhase * 0.57 + e.seed * 2.1) * e.driftAmp
-  e.vx += d * dt * 0.38
+  // Lissajous figure: produces organic, non-repeating idle paths
+  e.phase += dt * 0.55
+  const wave = Math.sin(e.phase + e.seed) * Math.cos(e.phase * 0.573 + e.seed * 2.13) * DRIFT_AMP
 
-  // slow lateral sweep so the path isn't a closed loop
-  // halve sweep when idle so natural drift alone sets the upper speed
-  e.vx += (Math.random() - 0.5) * (mouse.active ? 0.0009 : 0.0) * dt * 120
+  // thin curve: slowly drifts a slow irregular wandering movement
+  e.vx += (Math.random() - 0.5) * 0.85 * dt
 
-  // decay + counter-decay: keeps drift energy alive without net collateral
-  e.vx *= 1 - dt * 1.18
-  e.vx += d * dt * 0.38
+  // drift impulse — balanced by decay below so it neither explodes
+  // nor fades away; the net energy added each frame is close to zero
+  // but the path never repeats
+  e.vx += wave * dt * 5.5
+  e.vx *= 0.997 // very light per-frame decay
 }
 
-function applyRepel(e, dt) {
+// ── mouse interaction ─────────────────────────────────────────────────────────
+
+function applyRepel(e, dt, mSpeed) {
   if (!mouse.active) return
 
-  const [ux, uy] = normalize(e.x - mouse.x, e.y - mouse.y)
-  const r = dist(e, mouse)
-  if (r < 14 || r > Math.min(areaW.value, areaH.value) * 0.55) return
+  const dx = e.x - mouse.x
+  const dy = e.y - mouse.y
+  const r = Math.hypot(dx, dy)
+  if (r < 1 || r > REPEL_R) return
 
-  const proximity = Math.max(0, 1 - r / 220)
-  const mouseSpeed = Math.hypot(mouse.vx, mouse.vy)
-  const force = proximity * REPEL_STR * (0.18 + mouseSpeed * 0.28 + 0.12 * (220 / (r + 20)))
+  // prox: 1 when mouse touches, 0 at outer edge of REPEL_R
+  const prox = 1 - r / REPEL_R
 
-  e.vx += ux * force * dt
-  e.vy += uy * force * dt
+  // radial repel away from cursor — stronger when close + when mouse is fast
+  const force = prox * REPEL_STR * (1 + mSpeed * 0.15)
+  e.vx += (dx / r) * force * dt
+  e.vy += (dy / r) * force * dt
 }
+
+// ── anchor spring (gently pulls emojis back toward their home position) ──────
 
 function applySpring(e, dt) {
-  if (!mouse.active) return
+  // Always apply gentle friction so emojis coast smoothly after being flung
+  e.vx *= FRICTION
+  e.vy *= FRICTION
 
-  const maxDim = Math.max(areaW.value, areaH.value) || 1
-  const pullX = ((e.anchorX - e.x) / maxDim) * SPEED_CAP * SPRING_K * dt
-  const pullY = ((e.anchorY - e.y) / maxDim) * SPEED_CAP * SPRING_K * dt
+  // Spring pull toward anchor — scales with distance so it's soft when close
+  // and stronger when far away, giving a natural rubber-band feel
+  const dx = e.anchorX - e.x
+  const dy = e.anchorY - e.y
+  const d = Math.hypot(dx, dy)
 
-  e.vx += pullX
-  e.vy += pullY
-  e.vx *= DAMPING
-  e.vy *= DAMPING
+  // Only start pulling once the emoji has some distance from anchor
+  if (d > 5) {
+    // Stronger spring when mouse is gone so emojis eventually return home
+    const k = mouse.active ? SPRING_K * 0.3 : SPRING_K
+    e.vx += dx * k * dt
+    e.vy += dy * k * dt
+  }
 }
 
-function tickFrame(time) {
-  const elapsed = Math.min(time - lastTime, 0.05)
-  lastTime = time
-  const dt = elapsed
+// ── main loop ─────────────────────────────────────────────────────────────────
 
-  mouse.vx = mouse.x - mousePrevX.value
-  mouse.vy = mouse.y - mousePrevY.value
-  mousePrevX.value = mouse.x
-  mousePrevY.value = mouse.y
+function tickFrame(time) {
+  const dt = Math.min((time - lastTime) * 0.001, 0.05)
+  lastTime = time
+
+  // compute mouse velocity BEFORE overwriting prevMouse
+  const mx = mouse.x,
+    my = mouse.y
+  const mSpeed = Math.hypot(mx - prevMouse.x, my - prevMouse.y) // px since last frame
+  prevMouse.x = mx
+  prevMouse.y = my
 
   for (const e of emojis) {
+    // reset micro-velocity noise just once when mouse just left
+    if (!mouse.active && Math.abs(e.vx) < 0.05 && Math.abs(e.vy) < 0.05) {
+      /* still — no intervention; drift keeps them moving gently on its own */
+    }
+
     applyDrift(e, dt)
-    applyRepel(e, dt)
+    applyRepel(e, dt, mSpeed)
     applySpring(e, dt)
 
+    // integrate: px/s * s = px
     e.x += e.vx * dt
     e.y += e.vy * dt
 
-    // speed cap — convert SPEED_CAP (px/s) → px/frame
-    // idle runs at ~100 px/s (still gently drifting), active at full SPEED_CAP
-    const IDLE_SPD = 100
-    const spdCap = (mouse.active ? SPEED_CAP : IDLE_SPD) / 60
+    // ── speed cap ────────────────────────────────────────────────────────
+    const cap = mouse.active ? SPEED_CAP : IDLE_SPD // px/s (same unit as vx/vy)
     const spd = Math.hypot(e.vx, e.vy)
-    if (spd > spdCap) {
-      const s = spdCap / spd
+    if (spd > cap) {
+      const s = cap / spd
       e.vx *= s
       e.vy *= s
     }
 
-    // wall collision with outward nudge
-    if (e.x <= 0) {
-      e.x = 0
-      e.vx = Math.abs(e.vx) + 3
+    // ── wall collision ────────────────────────────────────────────────────
+    // gently nudge inward when an emoji bumps a boundary so it doesn't stick
+    const nudge = 4
+    if (e.x <= PAD) {
+      e.x = PAD
+      e.vx = Math.abs(e.vx) + nudge
     }
-    if (e.x >= areaW.value - 1) {
-      e.x = areaW.value - 1
-      e.vx = -Math.abs(e.vx) - 3
+    if (e.x >= areaW.value - PAD) {
+      e.x = areaW.value - PAD
+      e.vx = -Math.abs(e.vx) - nudge
     }
-    if (e.y <= 0) {
-      e.y = 0
-      e.vy = Math.abs(e.vy) + 3
+    if (e.y <= PAD) {
+      e.y = PAD
+      e.vy = Math.abs(e.vy) + nudge
     }
-    if (e.y >= areaH.value - 1) {
-      e.y = areaH.value - 1
-      e.vy = -Math.abs(e.vy) - 3
+    if (e.y >= areaH.value - PAD) {
+      e.y = areaH.value - PAD
+      e.vy = -Math.abs(e.vy) - nudge
     }
 
-    e.style.left = `${e.x}px`
-    e.style.top = `${e.y}px`
+    // compose as a single GPU-layer transform — no layout/repaint
+    e.style.transform = `translate3d(${e.x}px, ${e.y}px, 0)`
   }
 
   rafId = requestAnimationFrame(tickFrame)
 }
+
+// ── mouse helpers ─────────────────────────────────────────────────────────────
 
 function onResize() {
   const el = containerRef.value
@@ -291,22 +251,28 @@ function onResize() {
 function onMouseMove(e) {
   mouse.active = true
   const rect = containerRef.value.getBoundingClientRect()
-  mouse.x = Math.max(0, Math.min(areaW.value, e.clientX - rect.left))
-  mouse.y = Math.max(0, Math.min(areaH.value, e.clientY - rect.top))
+  // flush prev BEFORE writing new so tickFrame sees a real incremental delta
+  prevMouse.x = mouse.x
+  prevMouse.y = mouse.y
+  mouse.x = clamp(e.clientX - rect.left, 0, areaW.value)
+  mouse.y = clamp(e.clientY - rect.top, 0, areaH.value)
 }
 
 function onMouseLeave() {
   mouse.active = false
-  mouse.x = -9999
-  mouse.y = -9999
+  // prevMouse stays where the mouse was; delta will read 0 next frame = no spike
 }
 
 function onMouseEnter(e) {
   const rect = containerRef.value.getBoundingClientRect()
-  mouse.x = e.clientX - rect.left
-  mouse.y = e.clientY - rect.top
+  mouse.x = clamp(e.clientX - rect.left, 0, areaW.value)
+  mouse.y = clamp(e.clientY - rect.top, 0, areaH.value)
+  prevMouse.x = mouse.x // ← AFTER writes, so next tickFrame sees 0 velocity
+  prevMouse.y = mouse.y
   mouse.active = true
 }
+
+// ── add emoji ─────────────────────────────────────────────────────────────────
 
 function addEmoji() {
   const char = newEmojiText.value.trim()
@@ -321,12 +287,11 @@ function addEmoji() {
     anchorY: y,
     x,
     y,
-    vx: (Math.random() - 0.5) * 22,
-    vy: (Math.random() - 0.5) * 22,
-    driftPhase: Math.random() * Math.PI * 2,
-    driftAmp: DRIFT_AMP_PX,
+    vx: (Math.random() - 0.5) * 6,
+    vy: (Math.random() - 0.5) * 6,
+    phase: Math.random() * Math.PI * 2,
     seed: Math.random() * Math.PI * 2,
-    style: { left: `${x}px`, top: `${y}px` },
+    style: { transform: `translate3d(${x}px, ${y}px, 0)` },
   })
 
   emit(
@@ -337,11 +302,65 @@ function addEmoji() {
   inputRef.value?.focus()
 }
 
-// ── lifecycle ─────────────────────────────────────────────────────────
+/**
+ * scanDisk / scanGrid / findFreeSpot — unchanged placement helpers
+ */
+function scanDisk(emojis, w, h, n = 180) {
+  const cx = w / 2,
+    cy = h / 2
+  const rx = w / 2 - PAD,
+    ry = h / 2 - PAD
+  if (rx < EMOJI_R || ry < EMOJI_R) return null
+  for (let i = 0; i < n; i++) {
+    let px, py
+    for (let retry = 0; retry < 12; retry++) {
+      px = cx + (Math.random() * 2 - 1) * rx
+      py = cy + (Math.random() * 2 - 1) * ry
+      if (((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2 <= 1) break
+    }
+    if (emojis.every((e) => dist(e, { x: px, y: py }) >= EMOJI_R * 2)) return { x: px, y: py }
+  }
+  return null
+}
+
+function scanGrid(emojis, w, h) {
+  const P = EMOJI_R + 2
+  const xMin = P,
+    xMax = w - P,
+    yMin = P,
+    yMax = h - P
+  if (xMin >= xMax || yMin >= yMax) return null
+  const best = { x: 0, y: 0, gap: -Infinity }
+  for (let x = xMin; x <= xMax; x += (xMax - xMin) / 9) {
+    for (let y = yMin; y <= yMax; y += (yMax - yMin) / 9) {
+      const gap = Math.min(...emojis.map((e) => dist(e, { x, y }) - EMOJI_R * 2))
+      if (gap > best.gap) {
+        best.x = x
+        best.y = y
+        best.gap = gap
+      }
+    }
+  }
+  return best.gap >= 0 ? { x: best.x, y: best.y } : null
+}
+
+function findFreeSpot(emojis, w, h) {
+  let spot = scanDisk(emojis, w, h)
+  if (spot) return spot
+  spot = scanGrid(emojis, w, h)
+  if (spot) return spot
+  const cx = w / 2,
+    cy = h / 2
+  return {
+    x: clamp(cx + (Math.random() - 0.5) * w * 0.3, PAD, w - PAD),
+    y: clamp(cy + (Math.random() - 0.5) * h * 0.3, PAD, h - PAD),
+  }
+}
+
+// ── lifecycle ─────────────────────────────────────────────────────────────────
+
 let rafId
 let lastTime = 0
-const mousePrevX = ref(0)
-const mousePrevY = ref(0)
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(rafId)
@@ -370,10 +389,14 @@ onResize()
   font-size: 2rem;
   pointer-events: none;
   z-index: 1;
+  /* transform-driven animation — no layout/repaint between frames */
   will-change: transform;
+  top: 0;
+  left: 0;
 }
 
-/* ── add bar ─────────────────────────────────────────────────────── */
+/* ── add bar ───────────────────────────────────────────────────────────────── */
+
 .emoji-add-bar {
   position: absolute;
   bottom: 8px;
@@ -385,7 +408,7 @@ onResize()
   z-index: 10;
   padding: 3px 6px 3px 10px;
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.89);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   box-shadow: 0 2px 10px rgba(180, 130, 160, 0.18);
