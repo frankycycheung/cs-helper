@@ -14,7 +14,7 @@ import HomeValues from '../src/components/home-page/HomeValues.vue'
 import HomeFeatures from '../src/components/home-page/HomeFeatures.vue'
 import { ref } from 'vue'
 
-const message = ref("BB我去印度喇~會掛住你💖")
+const message = ref("BB我去印尼喇~會掛住你💖")
 </script>
 
 <style scoped>

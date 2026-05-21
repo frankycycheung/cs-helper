@@ -84,7 +84,7 @@ const dismissed = ref(false)
 
 @media (max-width: 767px) {
   .announcement-banner {
-    padding: 10px 16px;
+    padding: 10px 16px 10px 60px;
     font-size: 0.85rem;
     text-align: center;
   }
