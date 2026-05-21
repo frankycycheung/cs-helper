@@ -1,14 +1,16 @@
 <template>
-  <div
-    ref="containerRef"
-    class="emoji-floating-container"
-    @mousemove="onMouseMove"
-    @mouseleave="onMouseLeave"
-    @mouseenter="onMouseEnter"
-  >
-    <span v-for="emoji in emojis" :key="emoji.id" class="floating-emoji" :style="emoji.style">{{
-      emoji.char
-    }}</span>
+  <div class="emoji-wrapper">
+    <div
+      ref="containerRef"
+      class="emoji-floating-container"
+      @mousemove="onMouseMove"
+      @mouseleave="onMouseLeave"
+      @mouseenter="onMouseEnter"
+    >
+      <span v-for="emoji in emojis" :key="emoji.id" class="floating-emoji" :style="emoji.style">{{
+        emoji.char
+      }}</span>
+    </div>
 
     <div class="emoji-add-bar">
       <input
@@ -32,7 +34,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onBeforeUnmount } from 'vue'
+import { ref, reactive, onBeforeUnmount, onMounted } from 'vue'
 
 const props = defineProps({
   modelValue: {
@@ -56,6 +58,9 @@ const mouse = reactive({ x: -9999, y: -9999, active: false })
 // previous mouse position used to derive velocity each frame
 const prevMouse = reactive({ x: -9999, y: -9999 })
 
+// device orientation tilt gravity (normalised to px/s² style values)
+const tilt = reactive({ gx: 0, gy: 0, active: false })
+
 const emojis = reactive([])
 
 const ANCHOR_PCTS = [
@@ -78,6 +83,7 @@ const REPEL_STR = 120 // base force scale
 const IDLE_SPD = 40 // px/s — relaxed drift when mouse is absent
 const EMOJI_R = 22 // px — half the emoji collider radius
 const PAD = 28 // px — min clamp distance from wall edge
+const TILT_GRAVITY = 120 // px/s² force per unit of normalised tilt
 // ────────────────────────────────────────────────────────────────────────────
 
 function dist(a, b) {
@@ -170,6 +176,28 @@ function applySpring(e, dt) {
   }
 }
 
+// ── device orientation (tilt gravity) ─────────────────────────────────────────
+
+function applyTiltGravity(e, dt) {
+  if (!tilt.active) return
+  e.vx += tilt.gx * TILT_GRAVITY * dt
+  e.vy += tilt.gy * TILT_GRAVITY * dt
+}
+
+function onDeviceOrientation(ev) {
+  const beta = ev.beta // front-to-back tilt: −180 → 180
+  const gamma = ev.gamma // left-to-right tilt: −90 → 90
+  if (beta === null || gamma === null) return
+
+  tilt.active = true
+
+  // Normalise to roughly −1 … 1 range.
+  // gamma ±45° maps to full horizontal gravity; beta offset from 45°
+  // (typical hand-held angle) maps to vertical gravity.
+  tilt.gx = clamp(gamma / 45, -1, 1)
+  tilt.gy = clamp((beta - 45) / 45, -1, 1)
+}
+
 // ── main loop ─────────────────────────────────────────────────────────────────
 
 function tickFrame(time) {
@@ -191,6 +219,7 @@ function tickFrame(time) {
 
     applyDrift(e, dt)
     applyRepel(e, dt, mSpeed)
+    applyTiltGravity(e, dt)
     applySpring(e, dt)
 
     // integrate: px/s * s = px
@@ -198,7 +227,7 @@ function tickFrame(time) {
     e.y += e.vy * dt
 
     // ── speed cap ────────────────────────────────────────────────────────
-    const cap = mouse.active ? SPEED_CAP : IDLE_SPD // px/s (same unit as vx/vy)
+    const cap = mouse.active || tilt.active ? SPEED_CAP : IDLE_SPD
     const spd = Math.hypot(e.vx, e.vy)
     if (spd > cap) {
       const s = cap / spd
@@ -362,21 +391,53 @@ function findFreeSpot(emojis, w, h) {
 let rafId
 let lastTime = 0
 
+onMounted(() => {
+  onResize()
+
+  // Start device-orientation listening for mobile tilt-gravity
+  if (typeof DeviceOrientationEvent !== 'undefined') {
+    // iOS 13+ requires permission request
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      // We don't auto-prompt — the first touch anywhere on the container will
+      // request permission so it satisfies the user-gesture requirement.
+      const reqPermission = () => {
+        DeviceOrientationEvent.requestPermission()
+          .then((state) => {
+            if (state === 'granted') {
+              window.addEventListener('deviceorientation', onDeviceOrientation)
+            }
+          })
+          .catch(() => {})
+        containerRef.value?.removeEventListener('touchstart', reqPermission)
+      }
+      containerRef.value?.addEventListener('touchstart', reqPermission, { once: true })
+    } else {
+      window.addEventListener('deviceorientation', onDeviceOrientation)
+    }
+  }
+})
+
 onBeforeUnmount(() => {
   cancelAnimationFrame(rafId)
   window.removeEventListener('resize', onResize)
+  window.removeEventListener('deviceorientation', onDeviceOrientation)
 })
 
 initEmojis()
 rafId = requestAnimationFrame(tickFrame)
 window.addEventListener('resize', onResize)
-onResize()
 </script>
 
 <style scoped>
+.emoji-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .emoji-floating-container {
   position: relative;
-  height: 100%;
+  flex: 1 1 auto;
   min-height: 200px;
   cursor: default;
   user-select: none;
@@ -398,14 +459,12 @@ onResize()
 /* ── add bar ───────────────────────────────────────────────────────────────── */
 
 .emoji-add-bar {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
+  flex: 0 0 auto;
+  align-self: center;
+  margin-top: 12px;
+  display: inline-flex;
   gap: 5px;
   align-items: center;
-  z-index: 10;
   padding: 3px 6px 3px 10px;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.9);

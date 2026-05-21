@@ -43,7 +43,13 @@ defineProps({
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 900;
   background: linear-gradient(135deg, #fff0f5 0%, #e6e6fa 100%);
+}
+
+@media (max-width: 767px) {
+  .navbar .container-fluid {
+    padding-left: 60px;
+  }
 }
 </style>
